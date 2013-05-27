@@ -6,7 +6,6 @@ import (
 	"image/color"
 
 	"os"
-	"syscall"
 )
 
 const (
@@ -21,7 +20,7 @@ const (
 type FrameBuffer struct {
 	buf  []byte
 	h, w int
-	fd   int
+	file *os.File
 }
 
 func (fb *FrameBuffer) ColorModel() color.Model {
@@ -57,19 +56,19 @@ func (fb *FrameBuffer) Set(x, y int, c color.Color) {
 	fb.buf[pixelStart+blue] = uint8(b)
 }
 
+func (fb *FrameBuffer) Flush() error {
+	fb.file.Seek(0, 0)
+	_, err := fb.file.Write(fb.buf)
+	return err
+}
+
 // Opens/initializes the framebuffer with device node located at <filename>.
 // width and height should be the width and height of the display, in pixels.
 func Open(filename string, width, height int) (*FrameBuffer, error) {
-	fd, err := syscall.Open(filename, os.O_RDWR, 0)
+	file, err := os.OpenFile(filename, os.O_RDWR, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	buf, err := syscall.Mmap(fd, 0, height*width*colorBytes, syscall.PROT_READ|syscall.PROT_WRITE, syscall.MAP_SHARED)
-	if err != nil {
-		syscall.Close(fd)
-		return nil, err
-	}
-
-	return &FrameBuffer{buf: buf, w: width, h: height, fd: fd}, nil
+	return &FrameBuffer{buf: make([]byte, height*width*colorBytes), w: width, h: height, file: file}, nil
 }

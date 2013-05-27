@@ -17,7 +17,7 @@ import (
 	"flag"
 	"fmt"
 
-	"framebuffer"
+	"github.com/zenhack/framebuffer-go"
 )
 
 var w = flag.Int("w", 1440, "Width of the display (pixels)")
@@ -47,5 +47,5 @@ func main() {
 	}
 
 	draw.Draw(fb, rect, pic, pic.Bounds().Min, draw.Over)
-
+	fb.Flush()
 }
