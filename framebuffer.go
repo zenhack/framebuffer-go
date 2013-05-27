@@ -1,4 +1,8 @@
 // An image/draw compatible interface to the linux framebuffer
+//
+// Use Open() to get a framebuffer object, draw on it using the
+// facilities of image/draw, and call its Flush() method to sync changes
+// to the display.
 package framebuffer
 
 import (
@@ -56,6 +60,8 @@ func (fb *FrameBuffer) Set(x, y int, c color.Color) {
 	fb.buf[pixelStart+blue] = uint8(b)
 }
 
+// Sync changes to video memory - nothing will actually appear on the
+// screen until this is called.
 func (fb *FrameBuffer) Flush() error {
 	fb.file.Seek(0, 0)
 	_, err := fb.file.Write(fb.buf)
