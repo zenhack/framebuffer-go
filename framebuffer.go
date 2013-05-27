@@ -21,6 +21,8 @@ const (
 	colorBytes = 4
 )
 
+// A framebuffer object. Obtain with Open() - the zero value is not useful.
+// call Close() when finished to close the underlying file descriptor.
 type FrameBuffer struct {
 	buf  []byte
 	h, w int
@@ -66,6 +68,11 @@ func (fb *FrameBuffer) Flush() error {
 	fb.file.Seek(0, 0)
 	_, err := fb.file.Write(fb.buf)
 	return err
+}
+
+// Closes the framebuffer
+func (fb *FrameBuffer) Close() error {
+	return fb.file.Close()
 }
 
 // Opens/initializes the framebuffer with device node located at <filename>.

@@ -48,4 +48,5 @@ func main() {
 
 	draw.Draw(fb, rect, pic, pic.Bounds().Min, draw.Over)
 	fb.Flush()
+	fb.Close()
 }
