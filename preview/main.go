@@ -20,8 +20,7 @@ import (
 	"github.com/zenhack/framebuffer-go"
 )
 
-var w = flag.Int("w", 1440, "Width of the display (pixels)")
-var h = flag.Int("h", 900, "Height of the display (pixels)")
+var filename = flag.String("f", "/dev/fb0", "Path to framebuffer")
 
 func main() {
 	flag.Parse()
@@ -32,7 +31,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	fb, err := framebuffer.Open("/dev/fb0", *w, *h)
+	fb, err := framebuffer.Open(*filename)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error : Opening framebuffer : ", err)
 		os.Exit(1)

@@ -5,11 +5,16 @@
 // to the display.
 package framebuffer
 
+// #include "fb.h"
+// #include <stdlib.h> /* for C.free */
+import "C"
+
 import (
+	"fmt"
 	"image"
 	"image/color"
-
 	"os"
+	"unsafe"
 )
 
 const (
@@ -76,12 +81,17 @@ func (fb *FrameBuffer) Close() error {
 }
 
 // Opens/initializes the framebuffer with device node located at <filename>.
-// width and height should be the width and height of the display, in pixels.
-func Open(filename string, width, height int) (*FrameBuffer, error) {
-	file, err := os.OpenFile(filename, os.O_RDWR, 0)
-	if err != nil {
-		return nil, err
+func Open(filename string) (*FrameBuffer, error) {
+	var cFilename *C.char
+	cFilename = C.CString(filename)
+	defer C.free(unsafe.Pointer(cFilename))
+	var info C.fb_info_t
+	cErr := C.initfb(cFilename, &info)
+	if cErr != 0 {
+		return nil, fmt.Errorf("Error initializing framebuffer")
 	}
 
-	return &FrameBuffer{buf: make([]byte, height*width*colorBytes), w: width, h: height, file: file}, nil
+	return &FrameBuffer{
+		buf: make([]byte, info.fix_info.smem_len),
+		file: os.NewFile(uintptr(info.fd), filename)}, nil
 }
