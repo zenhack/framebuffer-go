@@ -93,5 +93,14 @@ func Open(filename string) (*FrameBuffer, error) {
 
 	return &FrameBuffer{
 		buf: make([]byte, info.fix_info.smem_len),
+		// XXX: this is theoretically problematic; xres/yres are
+		// uint32, so if we're dealing with a *huge* display, this
+		// could overflow. image.Point expects int though, so we're
+		// kinda stuck. fortunately displays that are greater than 2
+		// million pixels in one dimension don't exist, and probably
+		// never will unless we decide we need a retina display the
+		// size of a football field or something.
+		w: int(info.var_info.xres),
+		h: int(info.var_info.yres),
 		file: os.NewFile(uintptr(info.fd), filename)}, nil
 }
