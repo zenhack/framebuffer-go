@@ -5,7 +5,7 @@
 #include <fcntl.h>
 
 int initfb(char *filename, fb_info_t *fbinfo) {
-	fbinfo->fd = open("/dev/fb0", O_RDWR);
+	fbinfo->fd = open(filename, O_RDWR);
 	if(fbinfo->fd < 0) {
 		return -1;
 	}
