@@ -10,11 +10,15 @@ package framebuffer
 import "C"
 
 import (
-	"fmt"
+	"errors"
 	"image"
 	"image/color"
 	"os"
 	"unsafe"
+)
+
+var (
+	InitErr = errors.New("Error initializing framebuffer")
 )
 
 const (
@@ -88,7 +92,7 @@ func Open(filename string) (*FrameBuffer, error) {
 	var info C.fb_info_t
 	cErr := C.initfb(cFilename, &info)
 	if cErr != 0 {
-		return nil, fmt.Errorf("Error initializing framebuffer")
+		return nil, InitErr
 	}
 
 	return &FrameBuffer{
